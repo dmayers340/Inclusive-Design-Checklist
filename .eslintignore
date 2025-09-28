@@ -1,0 +1,6 @@
+# .eslintignore
+dist/
+build/
+node_modules/
+coverage/
+cypress/

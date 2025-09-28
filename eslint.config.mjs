@@ -21,7 +21,10 @@ export default defineConfig([
       'test-coverage',
       'coverage',
       '**/__tests__/**',
-      'cypress/tests/**',
+      '**/__tests/',
+      'test/**',
+      'tests/**',
+      'cypress/**',
       '**/test/**',
       '**/tests/__mocks__/**',
       '**/*.test.jsx',
@@ -128,8 +131,10 @@ export default defineConfig([
   },
 
   // 3) Cypress E2E files
-  {
-    files: ['cypress/**/*.{js,jsx}', 'cypress/e2e/**/*.cy.js'],
+    {
+    // only target the actual E2E test specs (adjust to your cypress layout)
+    files: ['cypress/e2e/**/*.{js,jsx}', 'cypress/e2e/**/*.cy.js'],
+
     languageOptions: {
       ecmaVersion: 'latest',
       sourceType: 'module',

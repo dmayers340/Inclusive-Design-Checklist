@@ -1,4 +1,4 @@
-import React, { createContext, useContext, useEffect, useMemo, useState } from 'react';
+import React, { createContext, useContext, useEffect, useMemo, useState, useCallback } from 'react';
 
 const ChecklistContext = createContext(null);
 
@@ -18,25 +18,27 @@ export function ChecklistProvider({ children, initialItems = [] }) {
     setItems(initialItems ?? []);
   }, [initialItems]);
 
-  // Load/persist status in localStorage
+  // Load/persist status in localStorage (guard for SSR)
   useEffect(() => {
-    const raw = localStorage.getItem(STORAGE_KEY);
-    if (raw) {
-      try {
-        const stored = JSON.parse(raw);
-        if (stored && typeof stored === 'object') setStatus(stored);
-      } catch { /* ignore */ }
+    if (typeof window === 'undefined') return;
+    const raw = window.localStorage.getItem(STORAGE_KEY);
+    if (!raw) return;
+    try {
+      const stored = JSON.parse(raw);
+      if (stored && typeof stored === 'object') setStatus(stored);
+    } catch {
+      /* ignore */
     }
   }, []);
 
   useEffect(() => {
-    localStorage.setItem(STORAGE_KEY, JSON.stringify(status));
+    if (typeof window === 'undefined') return;
+    window.localStorage.setItem(STORAGE_KEY, JSON.stringify(status));
   }, [status]);
 
   // Initialize defaults AND prune stale IDs whenever items change
   useEffect(() => {
     if (!items?.length) {
-      // If no items, clear status in memory (but keep localStorage for now)
       setStatus({});
       return;
     }
@@ -44,13 +46,10 @@ export function ChecklistProvider({ children, initialItems = [] }) {
       const next = { ...prev };
       const validIds = new Set(items.map(it => it.ID));
 
-      // Add defaults for new IDs
       for (const it of items) {
         if (!next[it.ID]) next[it.ID] = DEFAULT_STATUS;
-        // If someone wrote an invalid value, coerce it to default
         if (!STATUS_OPTS.includes(next[it.ID])) next[it.ID] = DEFAULT_STATUS;
       }
-      // Remove statuses for IDs that no longer exist in current items
       for (const k of Object.keys(next)) {
         if (!validIds.has(k)) delete next[k];
       }
@@ -58,15 +57,16 @@ export function ChecklistProvider({ children, initialItems = [] }) {
     });
   }, [items]);
 
-  // Public API
-  const setStatusFor = (id, value) => {
+  // ---- Stable callbacks (useCallback) ----
+
+  const setStatusFor = useCallback((id, value) => {
     // ignore unknown IDs and invalid values
     if (!items.find(it => it.ID === id)) return;
     const v = STATUS_OPTS.includes(value) ? value : DEFAULT_STATUS;
     setStatus(prev => (prev[id] === v ? prev : { ...prev, [id]: v }));
-  };
+  }, [items]);
 
-  const setManyStatuses = (entries) => {
+  const setManyStatuses = useCallback((entries) => {
     // entries: Array<[id, value]>
     setStatus(prev => {
       const next = { ...prev };
@@ -78,24 +78,35 @@ export function ChecklistProvider({ children, initialItems = [] }) {
       }
       return changed ? next : prev;
     });
-  };
+  }, [items]);
 
-  const resetAll = (to = DEFAULT_STATUS) => {
+  const resetAll = useCallback((to = DEFAULT_STATUS) => {
     const v = STATUS_OPTS.includes(to) ? to : DEFAULT_STATUS;
     const next = {};
     for (const it of items) next[it.ID] = v;
     setStatus(next);
-  };
+  }, [items]);
 
-  const clearStorage = () => {
-    localStorage.removeItem(STORAGE_KEY);
+  const clearStorage = useCallback(() => {
+    if (typeof window !== 'undefined') {
+      window.localStorage.removeItem(STORAGE_KEY);
+    }
+    // reuse the stable resetAll
     resetAll(DEFAULT_STATUS);
-  };
+  }, [resetAll]);
 
-  const value = useMemo(
-    () => ({ items, setItems, status, setStatusFor, setManyStatuses, resetAll, clearStorage, STATUS_OPTS, DEFAULT_STATUS }),
-    [items, status]
-  );
+  // ---- Memoized context value ----
+  const value = useMemo(() => ({
+    items,
+    setItems,            // useState setter is stable but harmless to list
+    status,
+    setStatusFor,
+    setManyStatuses,
+    resetAll,
+    clearStorage,
+    STATUS_OPTS,         // module constants; identities don’t change
+    DEFAULT_STATUS
+  }), [items, status, setItems, setStatusFor, setManyStatuses, resetAll, clearStorage]);
 
   return <ChecklistContext.Provider value={value}>{children}</ChecklistContext.Provider>;
 }

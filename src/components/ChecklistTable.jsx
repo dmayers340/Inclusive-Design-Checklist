@@ -46,7 +46,8 @@ export default function ChecklistTable({ filters }) {
                     {filtered.map(r => {
                         const id = r.ID;
                         const cur = status[id] || 'Not evaluated';
-                        const name = `status-${id}`;
+                        const name = `status-${id}`; // group name for this item’s radios
+
                         return (
                             <tr key={id} className="border-t align-top">
                                 <Td><span className="font-mono text-xs bg-slate-100 px-2 py-1 rounded">{id}</span></Td>
@@ -59,16 +60,18 @@ export default function ChecklistTable({ filters }) {
                                 <Td>
                                     <fieldset>
                                         <legend className="visually-hidden">Compliance status for {id}</legend>
-                                        <div className="d-flex flex-column gap-1">
+                                        <div className="flex flex-col gap-1">
                                             {STATUS_OPTS.map(opt => {
-                                                const inputId = `${groupName}-${opt.replace(/\s+/g, '-').toLowerCase()}`;
+                                                const safeOpt = opt.replace(/\s+/g, '-').replace(/[^\w-]/g, '').toLowerCase();
+                                                const inputId = `${name}-${safeOpt}`;
                                                 return (
                                                     <div className="form-check" key={opt}>
                                                         <input
                                                             className="form-check-input"
                                                             type="radio"
                                                             id={inputId}
-                                                            name={groupName}
+                                                            name={name}
+                                                            value={opt}
                                                             checked={cur === opt}
                                                             onChange={() => setStatusFor(id, opt)}
                                                         />
@@ -86,6 +89,7 @@ export default function ChecklistTable({ filters }) {
                                                 <input
                                                     type="radio"
                                                     name={name}
+                                                    value={opt}
                                                     checked={cur === opt}
                                                     onChange={() => setStatusFor(id, opt)}
                                                 />

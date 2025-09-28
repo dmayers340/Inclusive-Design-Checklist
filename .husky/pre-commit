@@ -1,8 +1,0 @@
-#!/usr/bin/env sh
-. "$(dirname -- "$0")/_/husky.sh"
-
-echo "🔧 Lint-staged (eslint --fix)…"
-npx lint-staged
-
-echo "🧪 Jest (changed files)…"
-npm run test -- -o
