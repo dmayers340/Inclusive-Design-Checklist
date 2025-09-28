@@ -4,7 +4,6 @@ import { Routes, Route } from 'react-router-dom';
 import NavBar from './components/NavBar';
 import HomePage from './pages/HomePage';
 import CreateReportPage from './pages/CreateReportPage';
-import DashboardPage from './pages/DashboardPage';
 import ViewReportsPage from './pages/ViewReportsPage';
 
 export default function App() {
@@ -16,7 +15,6 @@ export default function App() {
         <Routes>
           <Route path="/" element={<HomePage />} />
           <Route path="/create" element={<CreateReportPage />} />
-          <Route path="/dashboard" element={<DashboardPage />} />
           <Route path="/reports" element={<ViewReportsPage />} />
         </Routes>
       </main>

@@ -16,11 +16,4 @@ describe('App a11y smoke', () => {
 
         cy.checkA11yApp();
     });
-    it('Visits the dashboard', () => {
-        cy.visit('/dashboard');
-        cy.contains('button', /Show data table/i).first().click();
-        cy.get('[data-testid="sev-covered-High"]').should('contain', '1');
-        cy.checkA11yAppFiltered(undefined, { skipRules: ['color-contrast'] });
-
-    })
 });

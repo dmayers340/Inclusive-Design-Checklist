@@ -1,15 +1,17 @@
 import React, { useMemo } from 'react';
 
 import { listReports } from '../utils/api';
-
+import NavBar from '../components/NavBar';
 export default function HomePage() {
   const reports = useMemo(() => listReports(), []);
   return (
-    <div className="row g-3">
+    <>
+      <NavBar />
+ <div className="row g-3">
       <div className="col-12">
         <h1 className="h4 mb-3">Welcome! Create an Inclusive Design Checklist Report</h1>
         <p className="text-muted">
-          Use <strong>Create New Report</strong> to start a review, or jump to <strong>Dashboard</strong> to view charts for your current work.
+          Use <strong>Create New Report</strong> to start a review
         </p>
       </div>
 
@@ -35,5 +37,7 @@ export default function HomePage() {
         </div>
       </div>
     </div>
+    </>
+   
   );
 }

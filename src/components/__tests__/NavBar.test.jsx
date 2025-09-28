@@ -17,16 +17,10 @@ test('renders nav links, allows navigation, and is a11y clean', async () => {
   );
 
   // check all links exist
-  const links = ['Home', 'Create New Report', 'Dashboard', 'View Reports'];
+  const links = ['Home', 'Create New Report', 'View Reports'];
   links.forEach(text => {
     expect(screen.getByRole('link', { name: new RegExp(text, 'i') })).toBeInTheDocument();
   });
-
-  // simulate clicking Dashboard link
-  await user.click(screen.getByRole('link', { name: /Dashboard/i }));
-
-  // check that navigation updated memory history
-  expect(history.location.pathname).toBe('/dashboard');
 
   // accessibility check
   const results = await axe(container);

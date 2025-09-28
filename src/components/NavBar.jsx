@@ -15,7 +15,6 @@ export default function NavBar() {
                     <ul className="navbar-nav me-auto mb-2 mb-lg-0">
                         <li className="nav-item"><NavLink className="nav-link" to="/">Home</NavLink></li>
                         <li className="nav-item"><NavLink className="nav-link" to="/create">Create New Report</NavLink></li>
-                        <li className="nav-item"><NavLink className="nav-link" to="/dashboard">Dashboard</NavLink></li>
                         <li className="nav-item"><NavLink className="nav-link" to="/reports">View Reports</NavLink></li>
                     </ul>
                 </div>
